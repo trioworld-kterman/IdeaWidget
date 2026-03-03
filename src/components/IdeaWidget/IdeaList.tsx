@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import type { Idea, IdeaWidgetProps } from './types'
 import { IdeaItem } from './IdeaItem'
 import { sortByScore } from './utils'
@@ -16,9 +16,7 @@ export function IdeaList({ userId, onFetchIdeas, onVote, onFetchUserVotes }: Ide
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => { load() }, [])
-
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
@@ -34,12 +32,16 @@ export function IdeaList({ userId, onFetchIdeas, onVote, onFetchUserVotes }: Ide
     } finally {
       setLoading(false)
     }
-  }
+  }, [userId, onFetchIdeas, onFetchUserVotes])
+
+  useEffect(() => { load() }, [load])
 
   async function handleVote(ideaId: string, direction: 'up' | 'down') {
     if (!userId || !onVote) return
-    await onVote(ideaId, direction, userId)
-    // Optimistic update
+
+    // Optimistic update — apply immediately, revert on failure
+    const prevVotes = userVotes
+    const prevIdeas = ideas
     setUserVotes(prev => ({ ...prev, [ideaId]: direction }))
     setIdeas(prev =>
       prev.map(i =>
@@ -52,6 +54,14 @@ export function IdeaList({ userId, onFetchIdeas, onVote, onFetchUserVotes }: Ide
           : i
       )
     )
+
+    try {
+      await onVote(ideaId, direction, userId)
+    } catch {
+      // Revert on failure — IdeaItem will show its own error message
+      setUserVotes(prevVotes)
+      setIdeas(prevIdeas)
+    }
   }
 
   const canVote = !!(userId && onVote)
