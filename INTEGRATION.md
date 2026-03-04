@@ -29,11 +29,11 @@ userId     string
 direction  string   "up" | "down"
 ```
 
-## 3. Implement the four async functions
+## 3. Implement the service functions
 
 ```typescript
 import {
-  collection, getDocs, addDoc, doc,
+  collection, getDocs, addDoc, doc, deleteDoc, updateDoc,
   query, where, serverTimestamp, runTransaction,
 } from 'firebase/firestore'
 import { db } from '../firebase.config'
@@ -78,15 +78,38 @@ export async function getUserVotes(userId: string): Promise<Record<string, 'up' 
   snap.docs.forEach(d => { result[d.data().ideaId] = d.data().direction })
   return result
 }
+
+// Admin only
+export async function changeStatus(ideaId: string, status: Idea['status']): Promise<void> {
+  await updateDoc(doc(db, 'ideas', ideaId), { status })
+}
+
+// Admin only
+export async function deleteIdea(ideaId: string): Promise<void> {
+  await deleteDoc(doc(db, 'ideas', ideaId))
+}
 ```
 
-## 4. Mount the widget
+## 4. Decide who is admin
+
+The widget accepts an `isAdmin` boolean — your app decides who qualifies. A simple approach is to hardcode a list of admin UIDs:
+
+```typescript
+const ADMIN_UIDS = ['your-firebase-uid-here']
+
+const isAdmin = !!currentUser && ADMIN_UIDS.includes(currentUser.uid)
+```
+
+Or store an `isAdmin` flag on the user's Firestore profile and read it after login.
+
+## 5. Mount the widget
+
+**Regular users** (voting + submitting, no admin controls):
 
 ```tsx
 import { IdeaWidget } from './components/IdeaWidget'
 import { getIdeas, addIdea, vote, getUserVotes } from './services/ideaService'
 
-// Anywhere in your React tree (typically App.tsx)
 <IdeaWidget
   userId={currentUser?.uid}
   onFetchIdeas={getIdeas}
@@ -95,3 +118,22 @@ import { getIdeas, addIdea, vote, getUserVotes } from './services/ideaService'
   onFetchUserVotes={getUserVotes}
 />
 ```
+
+**With admin controls** (status dropdown + delete button visible):
+
+```tsx
+import { getIdeas, addIdea, vote, getUserVotes, changeStatus, deleteIdea } from './services/ideaService'
+
+<IdeaWidget
+  userId={currentUser?.uid}
+  isAdmin={isAdmin}
+  onFetchIdeas={getIdeas}
+  onSubmitIdea={addIdea}
+  onVote={vote}
+  onFetchUserVotes={getUserVotes}
+  onChangeStatus={changeStatus}
+  onDeleteIdea={deleteIdea}
+/>
+```
+
+When `isAdmin` is `true`, each idea row shows a status dropdown (open → planned → done) and a delete button with a two-click confirmation.
