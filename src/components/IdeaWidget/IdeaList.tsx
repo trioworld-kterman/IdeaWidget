@@ -5,12 +5,15 @@ import { sortByScore } from './utils'
 
 interface IdeaListProps {
   userId?: string
+  isAdmin: boolean
   onFetchIdeas: IdeaWidgetProps['onFetchIdeas']
   onVote: IdeaWidgetProps['onVote']
   onFetchUserVotes: IdeaWidgetProps['onFetchUserVotes']
+  onChangeStatus: IdeaWidgetProps['onChangeStatus']
+  onDeleteIdea: IdeaWidgetProps['onDeleteIdea']
 }
 
-export function IdeaList({ userId, onFetchIdeas, onVote, onFetchUserVotes }: IdeaListProps) {
+export function IdeaList({ userId, isAdmin, onFetchIdeas, onVote, onFetchUserVotes, onChangeStatus, onDeleteIdea }: IdeaListProps) {
   const [ideas, setIdeas] = useState<Idea[]>([])
   const [userVotes, setUserVotes] = useState<Record<string, 'up' | 'down'>>({})
   const [loading, setLoading] = useState(true)
@@ -64,6 +67,18 @@ export function IdeaList({ userId, onFetchIdeas, onVote, onFetchUserVotes }: Ide
     }
   }
 
+  async function handleChangeStatus(ideaId: string, status: Idea['status']) {
+    if (!onChangeStatus) return
+    await onChangeStatus(ideaId, status)
+    setIdeas(prev => prev.map(i => i.id === ideaId ? { ...i, status } : i))
+  }
+
+  async function handleDelete(ideaId: string) {
+    if (!onDeleteIdea) return
+    await onDeleteIdea(ideaId)
+    setIdeas(prev => prev.filter(i => i.id !== ideaId))
+  }
+
   const canVote = !!(userId && onVote)
 
   if (loading) return <div className="iw-spinner">Loading ideas…</div>
@@ -85,7 +100,10 @@ export function IdeaList({ userId, onFetchIdeas, onVote, onFetchUserVotes }: Ide
           idea={idea}
           userVote={userVotes[idea.id] ?? null}
           canVote={canVote}
+          isAdmin={isAdmin}
           onVote={direction => handleVote(idea.id, direction)}
+          onChangeStatus={status => handleChangeStatus(idea.id, status)}
+          onDelete={() => handleDelete(idea.id)}
         />
       ))}
     </div>

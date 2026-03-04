@@ -6,20 +6,26 @@ import { IdeaForm } from './IdeaForm'
 interface IdeaModalProps {
   title: string
   userId?: string
+  isAdmin: boolean
   onFetchIdeas: IdeaWidgetProps['onFetchIdeas']
   onSubmitIdea: IdeaWidgetProps['onSubmitIdea']
   onVote: IdeaWidgetProps['onVote']
   onFetchUserVotes: IdeaWidgetProps['onFetchUserVotes']
+  onChangeStatus: IdeaWidgetProps['onChangeStatus']
+  onDeleteIdea: IdeaWidgetProps['onDeleteIdea']
   onClose: () => void
 }
 
 export function IdeaModal({
   title,
   userId,
+  isAdmin,
   onFetchIdeas,
   onSubmitIdea,
   onVote,
   onFetchUserVotes,
+  onChangeStatus,
+  onDeleteIdea,
   onClose,
 }: IdeaModalProps) {
   const [activeTab, setActiveTab] = useState<'list' | 'submit'>('list')
@@ -61,9 +67,12 @@ export function IdeaModal({
           {activeTab === 'list' ? (
             <IdeaList
               userId={userId}
+              isAdmin={isAdmin}
               onFetchIdeas={onFetchIdeas}
               onVote={onVote}
               onFetchUserVotes={onFetchUserVotes}
+              onChangeStatus={onChangeStatus}
+              onDeleteIdea={onDeleteIdea}
             />
           ) : (
             <IdeaForm

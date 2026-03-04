@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Idea } from './types'
 import { getNetScore, statusLabel } from './utils'
 
@@ -6,25 +6,59 @@ interface IdeaItemProps {
   idea: Idea
   userVote: 'up' | 'down' | null
   canVote: boolean
+  isAdmin: boolean
   onVote: (direction: 'up' | 'down') => Promise<void>
+  onChangeStatus?: (status: Idea['status']) => Promise<void>
+  onDelete?: () => Promise<void>
 }
 
-export function IdeaItem({ idea, userVote, canVote, onVote }: IdeaItemProps) {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+export function IdeaItem({ idea, userVote, canVote, isAdmin, onVote, onChangeStatus, onDelete }: IdeaItemProps) {
+  const [voteLoading, setVoteLoading] = useState(false)
+  const [voteError, setVoteError] = useState<string | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [statusLoading, setStatusLoading] = useState(false)
 
   const alreadyVoted = userVote !== null
 
+  // Auto-cancel delete confirm after 3s
+  useEffect(() => {
+    if (!confirmDelete) return
+    const t = setTimeout(() => setConfirmDelete(false), 3000)
+    return () => clearTimeout(t)
+  }, [confirmDelete])
+
   async function handleVote(direction: 'up' | 'down') {
-    if (!canVote || alreadyVoted || loading) return
-    setLoading(true)
-    setError(null)
+    if (!canVote || alreadyVoted || voteLoading) return
+    setVoteLoading(true)
+    setVoteError(null)
     try {
       await onVote(direction)
     } catch {
-      setError('Vote failed. Try again.')
+      setVoteError('Vote failed. Try again.')
     } finally {
-      setLoading(false)
+      setVoteLoading(false)
+    }
+  }
+
+  async function handleStatusChange(status: Idea['status']) {
+    if (!onChangeStatus) return
+    setStatusLoading(true)
+    try {
+      await onChangeStatus(status)
+    } finally {
+      setStatusLoading(false)
+    }
+  }
+
+  async function handleDelete() {
+    if (!onDelete) return
+    setDeleteLoading(true)
+    try {
+      await onDelete()
+    } finally {
+      setDeleteLoading(false)
+      setConfirmDelete(false)
     }
   }
 
@@ -34,7 +68,7 @@ export function IdeaItem({ idea, userVote, canVote, onVote }: IdeaItemProps) {
         <button
           className={`iw-vote-btn${userVote === 'up' ? ' iw-vote-btn--voted' : ''}`}
           onClick={() => handleVote('up')}
-          disabled={!canVote || alreadyVoted || loading}
+          disabled={!canVote || alreadyVoted || voteLoading}
           aria-label="Vote up"
         >
           ▲ {idea.votesUp}
@@ -43,7 +77,7 @@ export function IdeaItem({ idea, userVote, canVote, onVote }: IdeaItemProps) {
         <button
           className={`iw-vote-btn${userVote === 'down' ? ' iw-vote-btn--voted' : ''}`}
           onClick={() => handleVote('down')}
-          disabled={!canVote || alreadyVoted || loading}
+          disabled={!canVote || alreadyVoted || voteLoading}
           aria-label="Vote down"
         >
           ▼ {idea.votesDown}
@@ -52,11 +86,36 @@ export function IdeaItem({ idea, userVote, canVote, onVote }: IdeaItemProps) {
       <div className="iw-item-content">
         <p className="iw-item-title">{idea.title}</p>
         {idea.description && <p className="iw-item-desc">{idea.description}</p>}
-        {error && <p className="iw-vote-error">{error}</p>}
+        {voteError && <p className="iw-vote-error">{voteError}</p>}
       </div>
-      <span className={`iw-status-badge iw-status-badge--${idea.status}`}>
-        {statusLabel(idea.status)}
-      </span>
+      {isAdmin ? (
+        <div className="iw-admin-controls">
+          <select
+            className={`iw-status-select iw-status-select--${idea.status}`}
+            value={idea.status}
+            onChange={e => handleStatusChange(e.target.value as Idea['status'])}
+            disabled={statusLoading}
+            aria-label="Change status"
+          >
+            <option value="open">Open</option>
+            <option value="planned">Planned</option>
+            <option value="done">Done</option>
+          </select>
+          {confirmDelete ? (
+            <button className="iw-delete-confirm-btn" onClick={handleDelete} disabled={deleteLoading}>
+              Sure?
+            </button>
+          ) : (
+            <button className="iw-delete-btn" onClick={() => setConfirmDelete(true)} aria-label="Delete idea">
+              🗑
+            </button>
+          )}
+        </div>
+      ) : (
+        <span className={`iw-status-badge iw-status-badge--${idea.status}`}>
+          {statusLabel(idea.status)}
+        </span>
+      )}
     </div>
   )
 }

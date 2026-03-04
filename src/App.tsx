@@ -41,6 +41,7 @@ export default function App() {
       <p>Click the 💡 button in the bottom-right corner.</p>
       <IdeaWidget
         userId="demo-user-1"
+        isAdmin
         onFetchIdeas={async () => [...mockIdeas]}
         onSubmitIdea={async ({ title, description }) => {
           const idea: Idea = {
@@ -67,6 +68,12 @@ export default function App() {
           mockVotes[ideaId] = direction
         }}
         onFetchUserVotes={async () => ({ ...mockVotes })}
+        onChangeStatus={async (ideaId, status) => {
+          mockIdeas = mockIdeas.map(i => i.id === ideaId ? { ...i, status } : i)
+        }}
+        onDeleteIdea={async (ideaId) => {
+          mockIdeas = mockIdeas.filter(i => i.id !== ideaId)
+        }}
       />
     </div>
   )

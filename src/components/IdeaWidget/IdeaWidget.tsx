@@ -6,10 +6,13 @@ import './IdeaWidget.css'
 
 export function IdeaWidget({
   userId,
+  isAdmin = false,
   onFetchIdeas,
   onSubmitIdea,
   onVote,
   onFetchUserVotes,
+  onChangeStatus,
+  onDeleteIdea,
   title = 'Feature Ideas',
   buttonLabel = 'Ideas',
 }: IdeaWidgetProps) {
@@ -22,10 +25,13 @@ export function IdeaWidget({
         <IdeaModal
           title={title}
           userId={userId}
+          isAdmin={isAdmin}
           onFetchIdeas={onFetchIdeas}
           onSubmitIdea={onSubmitIdea}
           onVote={onVote}
           onFetchUserVotes={onFetchUserVotes}
+          onChangeStatus={onChangeStatus}
+          onDeleteIdea={onDeleteIdea}
           onClose={() => setOpen(false)}
         />
       )}
