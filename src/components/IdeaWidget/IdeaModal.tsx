@@ -37,7 +37,10 @@ export function IdeaModal({
       <div className="iw-overlay" onClick={onClose} />
       <div className="iw-modal" role="dialog" aria-modal="true" aria-labelledby="iw-modal-title">
         <div className="iw-modal-header">
-          <h2 id="iw-modal-title">{title}</h2>
+          <div>
+            <h2 id="iw-modal-title">{title}</h2>
+            <p className="iw-modal-tagline">Cast your vote · Shape what's next</p>
+          </div>
           <button className="iw-close-btn" onClick={onClose} aria-label="Close">✕</button>
         </div>
         <div className="iw-tabs">

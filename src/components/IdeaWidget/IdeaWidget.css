@@ -58,6 +58,11 @@
   font-weight: 700;
   color: #111827;
 }
+.iw-modal-tagline {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: #9ca3af;
+}
 .iw-close-btn {
   background: none;
   border: none;
