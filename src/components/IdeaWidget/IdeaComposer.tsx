@@ -1,12 +1,12 @@
 import { useState } from 'react'
 
-interface IdeaFormProps {
+interface IdeaComposerProps {
   onSubmit: (idea: { title: string; description?: string }) => Promise<void>
   onSuccess: () => void
-  onCancel?: () => void
+  onCancel: () => void
 }
 
-export function IdeaForm({ onSubmit, onSuccess, onCancel }: IdeaFormProps) {
+export function IdeaComposer({ onSubmit, onSuccess, onCancel }: IdeaComposerProps) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [loading, setLoading] = useState(false)
@@ -58,14 +58,14 @@ export function IdeaForm({ onSubmit, onSuccess, onCancel }: IdeaFormProps) {
         />
       </div>
       {error && <p className="iw-form-error">{error}</p>}
-      <button className="iw-submit-btn" type="submit" disabled={loading || !title.trim()}>
-        {loading ? 'Submitting…' : 'Submit idea'}
-      </button>
-      {onCancel && (
+      <div className="iw-form-actions">
+        <button className="iw-submit-btn" type="submit" disabled={loading || !title.trim()}>
+          {loading ? 'Submitting...' : 'Submit idea'}
+        </button>
         <button className="iw-cancel-btn" type="button" onClick={onCancel} disabled={loading}>
           Cancel
         </button>
-      )}
+      </div>
     </form>
   )
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { IdeaButton } from './IdeaButton'
-import { IdeaModal } from './IdeaModal'
+import { IdeaModalV2 } from './IdeaModalV2'
 import type { IdeaWidgetProps } from './types'
 import './IdeaWidget.css'
 
@@ -22,7 +22,7 @@ export function IdeaWidget({
     <>
       <IdeaButton label={buttonLabel} onClick={() => setOpen(true)} />
       {open && (
-        <IdeaModal
+        <IdeaModalV2
           title={title}
           userId={userId}
           isAdmin={isAdmin}
