@@ -16,7 +16,7 @@ title       string
 description string   (optional)
 votesUp     number   default 0
 votesDown   number   default 0
-status      string   "open" | "planned" | "done"   default "open"
+status      string   "open" | "planned" | "done" | "declined"   default "open"
 createdAt   timestamp
 ```
 
@@ -136,4 +136,6 @@ import { getIdeas, addIdea, vote, getUserVotes, changeStatus, deleteIdea } from 
 />
 ```
 
-When `isAdmin` is `true`, each idea row shows a status dropdown (open → planned → done) and a delete button with a two-click confirmation.
+When `isAdmin` is `true`, each idea row shows a status dropdown (open → planned → done, plus a **declined** option for off-topic or unwanted submissions) and a delete button with a two-click confirmation.
+
+Use **declined** for ideas you don't intend to act on (e.g. complaints unrelated to features) — it keeps them out of the "open"/"planned" queues and out of "done" (which should mean actually shipped) without permanently deleting the record. Use the delete button only if you want the idea gone entirely.

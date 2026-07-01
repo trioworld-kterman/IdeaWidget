@@ -100,6 +100,7 @@ export function IdeaItem({ idea, userVote, canVote, isAdmin, onVote, onChangeSta
             <option value="open">Open</option>
             <option value="planned">Planned</option>
             <option value="done">Done</option>
+            <option value="declined">Declined</option>
           </select>
           {confirmDelete ? (
             <button className="iw-delete-confirm-btn" onClick={handleDelete} disabled={deleteLoading}>

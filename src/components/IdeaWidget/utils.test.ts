@@ -42,5 +42,6 @@ describe('statusLabel', () => {
     expect(statusLabel('open')).toBe('Open')
     expect(statusLabel('planned')).toBe('Planned')
     expect(statusLabel('done')).toBe('Done')
+    expect(statusLabel('declined')).toBe('Declined')
   })
 })

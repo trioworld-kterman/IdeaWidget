@@ -45,7 +45,7 @@ See [INTEGRATION.md](./INTEGRATION.md) for the full Firestore schema and ready-t
 
 Two collections required:
 
-- **`ideas`** — `{ title, description?, votesUp, votesDown, status, createdAt }`
+- **`ideas`** — `{ title, description?, votesUp, votesDown, status, createdAt }` (`status` is `"open" | "planned" | "done" | "declined"`)
 - **`votes`** — doc ID: `{ideaId}_{userId}` — prevents duplicate votes at DB level
 
 ## Dev

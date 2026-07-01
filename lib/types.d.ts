@@ -4,7 +4,7 @@ export interface Idea {
     description?: string;
     votesUp: number;
     votesDown: number;
-    status: 'open' | 'planned' | 'done';
+    status: 'open' | 'planned' | 'done' | 'declined';
     createdAt: Date;
 }
 export interface IdeaWidgetProps {

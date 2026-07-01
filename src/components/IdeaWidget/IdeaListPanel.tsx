@@ -20,6 +20,7 @@ const statusFilters: Array<{ value: StatusFilter; label: string }> = [
   { value: 'open', label: 'Open' },
   { value: 'planned', label: 'Planned' },
   { value: 'done', label: 'Done' },
+  { value: 'declined', label: 'Declined' },
   { value: 'all', label: 'All' },
 ]
 
@@ -104,6 +105,7 @@ export function IdeaListPanel({
     open: ideas.filter(idea => idea.status === 'open').length,
     planned: ideas.filter(idea => idea.status === 'planned').length,
     done: ideas.filter(idea => idea.status === 'done').length,
+    declined: ideas.filter(idea => idea.status === 'declined').length,
     all: ideas.length,
   }
   const filteredIdeas = sortByScore(

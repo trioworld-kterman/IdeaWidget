@@ -9,5 +9,5 @@ export function sortByScore(ideas: Idea[]): Idea[] {
 }
 
 export function statusLabel(status: Idea['status']): string {
-  return { open: 'Open', planned: 'Planned', done: 'Done' }[status]
+  return { open: 'Open', planned: 'Planned', done: 'Done', declined: 'Declined' }[status]
 }
